@@ -33,13 +33,12 @@ PARSER_BEGIN(CCALTokenizer)
           return;
         }
       } else {
-        System.out.println("Invalid use of CCALTokenizer. Either use system.in
-        or specify a filename as an arguement.");
+        System.out.println("Invalid use of CCALTokenizer. Either use system.in or specify a filename as an arguement.");
         return;
       }
-      // for (Token t = getNextToken(); t.kind!=EOF; t = getNextToken()) {
-      //   System.out.printf("(%s: %s)", t.kind, t.image);
-      // }
+      for (Token t = getNextToken(); t.kind!=EOF; t = getNextToken()) {
+        System.out.printf("(%s: %s)", t.kind, t.image);
+      }
     }
   }
 
@@ -51,6 +50,16 @@ SKIP: {
 | "\n"
 | "\t"
 | "\r"
+| <"//" (~["\n"])*>
+| <"/*"> : FORMAL_COMMENT
+}
+
+// TODO: FIX FORMAL COMMENTS
+
+// Formal comments
+<FORMAL_COMMENT> SKIP : {
+<"*/"> : DEFAULT
+| <~[]>
 }
 
 // Reserved Words
@@ -100,10 +109,9 @@ TOKEN : {
 | <#UNDERSCORE: "_">
 }
 
-// TODO - COMMENTS
-
-// TODO - LOOK AT TERMINALS AND NON-TERMINALS
-
-// TODO - GRAMMAR & SYNTAX ANALYSER
+// All other tokens
+TOKEN : {
+  <OTHER : ~[]>
+}
 
 /******************************** SYNTAX PARSER ********************************/
