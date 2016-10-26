@@ -1,0 +1,109 @@
+/* CA4003 - ASSIGNMENT 1 - LEXICAL AND SYNTAX ANALYSER FOR THE CCAL LANGUAGE */
+
+/*** STUDENT DETAILS ***
+ Aaron Daly
+ 13376916
+ aaron.daly42@mail.dcu.ie
+************************/
+
+/* I declare that this is my own work, and that I am aware of the consequences
+   of plagerism in DCU. */
+
+/****************************** LEXICAL TOKENIZER ******************************/
+
+options {
+  JAVA_UNICODE_ESCAPE = true;
+  TOKEN_FACTORY = "Token";
+  IGNORE_CASE = true;
+}
+
+PARSER_BEGIN(CCALTokenizer)
+
+  public class CCALTokenizer {
+    public static void main(String [] args) {
+      CCALTokenizer tokenizer;
+      if (args.length == 0) {
+        System.out.println("Reading from standard input...");
+        tokenizer = new CCALTokenizer(System.in);
+      } else if (args.length == 1) {
+        try {
+          tokenizer = new CCALTokenizer(new java.io.FileInputStream(args[0]));
+        } catch (java.io.FileNotFoundException e) {
+          System.out.printf("File '$s' not found.", args[0]);
+          return;
+        }
+      } else {
+        System.out.println("Invalid use of CCALTokenizer. Either use system.in
+        or specify a filename as an arguement.");
+        return;
+      }
+      // for (Token t = getNextToken(); t.kind!=EOF; t = getNextToken()) {
+      //   System.out.printf("(%s: %s)", t.kind, t.image);
+      // }
+    }
+  }
+
+PARSER_END(CCALTokenizer)
+
+// Tokens to skip
+SKIP: {
+" "
+| "\n"
+| "\t"
+| "\r"
+}
+
+// Reserved Words
+TOKEN : {
+  <VAR: "var">
+| <CONST: "const">
+| <RETURN: "return">
+| <INTEGER: "integer">
+| <BOOLEAN: "boolean">
+| <VOID: "void">
+| <MAIN: "main">
+| <IF: "if">
+| <ELSE: "else">
+| <WHILE: "while">
+| <SKIP_: "skip">
+}
+
+// Language Tokens
+TOKEN : {
+  <COMMA: ",">
+  | <SEMIC: ";">
+  | <COLON: ":">
+  | <ASSIGN: "=">
+  | <LBRACE: "{">
+  | <RBRACE: "}">
+  | <LPAREN: "(">
+  | <RPAREN: ")">
+  | <PLUS: "+">
+  | <MINUS: "-">
+  | <TILDA: "~">
+  | <OR: "||">
+  | <AND: "&&">
+  | <EQUALS: "==">
+  | <NOT_EQUALS: "!=">
+  | <LESS_THAN: "<">
+  | <LT_EQUAL: "<=">
+  | <GREATER_THAN: ">">
+  | <GT_EQUAL: ">=">
+}
+
+// Integers and Identifiers
+TOKEN : {
+  <INT: (<DIGIT>)+>
+| <IDENTIFIER: <LETTER>(<LETTER>|<DIGIT>|<UNDERSCORE>)*>
+| <#DIGIT: ["0"-"9"]>
+| <#LETTER: ["a"-"z", "A"-"Z"]>
+| <#UNDERSCORE: "_">
+}
+
+// TODO - COMMENTS
+
+// TODO - LOOK AT TERMINALS AND NON-TERMINALS
+
+// TODO - GRAMMAR & SYNTAX ANALYSER
+
+/******************************** SYNTAX PARSER ********************************/
