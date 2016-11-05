@@ -114,7 +114,7 @@ TOKEN : {
 
 // Integers and Identifiers
 TOKEN : {
-  <INT: (<DIGIT>)+>
+  <NUM: (<DIGIT>)+>
 | <IDENTIFIER: <LETTER>(<LETTER>|<DIGIT>|<UNDERSCORE>)*>
 | <#DIGIT: ["0"-"9"]>
 | <#LETTER: ["a"-"z", "A"-"Z"]>
@@ -199,15 +199,9 @@ void stm() : {}
 | <SKIP_> <SEMIC>
 }
 
-void binOp() : {}
-{
-  <PLUS>
-| <MINUS>
-}
-
 void exp() : {}
 {
-  frag() advExp()
+  frag() recurExp()
 }
 
 void frag() : {}
@@ -215,20 +209,26 @@ void frag() : {}
   <LPAREN> exp() <RPAREN>
 | <IDENTIFIER> (<LPAREN> argList() <RPAREN> | {})
 | <MINUS> <IDENTIFIER>
-| <INT>
+| <NUM>
 | <TRUE>
 | <FALSE>
 }
 
-void advExp() : {}
+void recurExp() : {}
 {
-  (binOp() exp()) advExp()
+  (binOp() exp()) recurExp()
 | {}
+}
+
+void binOp() : {}
+{
+  <PLUS>
+| <MINUS>
 }
 
 void cond() : {}
 {
-  simpleCond() ( (<OR> | <AND>) cond() | {} )
+  simpleCond() recurCond()
 }
 
 void simpleCond() : {}
@@ -236,6 +236,11 @@ void simpleCond() : {}
   <TILDE> cond()
 | <LPAREN> cond() <RPAREN>
 | exp() compOp() exp()
+}
+
+void recurCond() : {}
+{
+  (<OR> | <AND>) cond() recurCond() | {}
 }
 
 void compOp() : {}

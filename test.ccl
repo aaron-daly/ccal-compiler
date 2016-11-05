@@ -1,4 +1,6 @@
-/*well boi */
+/* HELLO WORLD */
+// HELLO WORLD //
+
 integer addition(z: integer , q: integer){
   var result: integer;
   result = q;
@@ -27,4 +29,6 @@ main
     y = 4;
   }
   res = addition(i, y);
+
+   /* I AM // A /* NESTED COMMENT */ !!! */
 }
