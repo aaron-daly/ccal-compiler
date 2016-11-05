@@ -197,6 +197,29 @@ void stm() : {}
 | <SKIP_> <SEMIC>
 }
 
+void binOp() : {}
+{
+  <PLUS>
+| <MINUS>
+}
+
+// void exp() : {}
+// {
+//   frag() ({} | binOp() frag())
+// | <LPAREN> exp() <RPAREN>
+// | <IDENTIFIER> <LPAREN> argList() <RPAREN>
+// }
+//
+// void frag() : {}
+// {
+//   <IDENTIFIER>
+// | <MINUS> <IDENTIFIER>
+// | <INT>
+// | <TRUE>
+// | <FALSE>
+// | exp()
+// }
+
 void exp() : {}
 {
   frag() ({} | binOp() frag())
@@ -204,28 +227,42 @@ void exp() : {}
 | <IDENTIFIER> <LPAREN> argList() <RPAREN>
 }
 
-void binOp() : {}
+void frag() : {}
 {
-  <PLUS>
-| <MINUS>
+  simpleFrag() fragExp()
 }
 
-void frag() : {}
+void fragExp() : {}
+{
+  (exp() fragExp())
+| {}
+}
+
+void simpleFrag() : {}
 {
   <IDENTIFIER>
 | <MINUS> <IDENTIFIER>
 | <INT>
 | <TRUE>
 | <FALSE>
-| exp()
 }
 
 void cond() : {}
 {
+  simpleCond() advCond()
+}
+
+void simpleCond() : {}
+{
   <TILDA> cond()
 | <LPAREN> cond() <RPAREN>
 | exp() compOp() exp()
-| cond() (<OR> | <AND>) cond()
+}
+
+void advCond() : {}
+{
+  (cond() (<OR> | <AND>) cond()) advCond()
+| {}
 }
 
 void compOp() : {}
@@ -247,5 +284,5 @@ void argList() : {}
 void nempArgList() : {}
 {
   <IDENTIFIER>
-| (<IDENTIFIER> <COMMA> nempArgList())
+| <IDENTIFIER> <COMMA> nempArgList()
 }
