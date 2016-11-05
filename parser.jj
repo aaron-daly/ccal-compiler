@@ -21,13 +21,13 @@ PARSER_BEGIN(CCALParser)
 
   public class CCALParser {
     public static void main(String [] args) {
-      CCALParser tokenizer;
+      CCALParser parser;
       if (args.length == 0) {
         System.out.println("Reading from standard input...");
-        tokenizer = new CCALParser(System.in);
+        parser = new CCALParser(System.in);
       } else if (args.length == 1) {
         try {
-          tokenizer = new CCALParser(new java.io.FileInputStream(args[0]));
+          parser = new CCALParser(new java.io.FileInputStream(args[0]));
         } catch (java.io.FileNotFoundException e) {
           System.out.printf("File '$s' not found.", args[0]);
           return;
@@ -101,7 +101,7 @@ TOKEN : {
   | <RPAREN: ")">
   | <PLUS: "+">
   | <MINUS: "-">
-  | <TILDA: "~">
+  | <TILDE: "~">
   | <OR: "||">
   | <AND: "&&">
   | <EQUALS: "==">
@@ -128,7 +128,8 @@ void Prog() : {}
 
 void declList() : {}
 {
-  (decl() [<SEMIC> (declList() | {})])
+  (decl() [<SEMIC> declList()])
+| {}
 }
 
 void decl() : {}
@@ -149,13 +150,14 @@ void constDecl() : {}
 
 void funcList() : {}
 {
-  func() (funcList() | {})
+  func() funcList()
+  | {}
 }
 
 void func() : {}
 {
   type() <IDENTIFIER> <LPAREN> paramList() <RPAREN>
-   <LBRACE> declList() stmBlock() <RETURN> <LPAREN> (exp() | {}) <RPAREN>
+   <LBRACE> declList() stmBlock() <RETURN> <LPAREN> (exp() | {}) <RPAREN> <SEMIC> <RBRACE>
 }
 
 void type() : {}
@@ -173,13 +175,13 @@ void paramList() : {}
 
 void nempParamList() : {}
 {
-  <IDENTIFIER> <SEMIC> type()
-| {}
+  <IDENTIFIER> <COLON> type() (<COMMA> nempParamList() | {})
 }
 
 void main() : {}
 {
   <MAIN> <LBRACE> declList() stmBlock() <RBRACE>
+  | {}
 }
 
 void stmBlock() : {}
@@ -203,66 +205,37 @@ void binOp() : {}
 | <MINUS>
 }
 
-// void exp() : {}
-// {
-//   frag() ({} | binOp() frag())
-// | <LPAREN> exp() <RPAREN>
-// | <IDENTIFIER> <LPAREN> argList() <RPAREN>
-// }
-//
-// void frag() : {}
-// {
-//   <IDENTIFIER>
-// | <MINUS> <IDENTIFIER>
-// | <INT>
-// | <TRUE>
-// | <FALSE>
-// | exp()
-// }
-
 void exp() : {}
 {
-  frag() ({} | binOp() frag())
-| <LPAREN> exp() <RPAREN>
-| <IDENTIFIER> <LPAREN> argList() <RPAREN>
+  frag() advExp()
 }
 
 void frag() : {}
 {
-  simpleFrag() fragExp()
-}
-
-void fragExp() : {}
-{
-  (exp() fragExp())
-| {}
-}
-
-void simpleFrag() : {}
-{
-  <IDENTIFIER>
+  <LPAREN> exp() <RPAREN>
+| <IDENTIFIER> (<LPAREN> argList() <RPAREN> | {})
 | <MINUS> <IDENTIFIER>
 | <INT>
 | <TRUE>
 | <FALSE>
 }
 
+void advExp() : {}
+{
+  (binOp() exp()) advExp()
+| {}
+}
+
 void cond() : {}
 {
-  simpleCond() advCond()
+  simpleCond() ( (<OR> | <AND>) cond() | {} )
 }
 
 void simpleCond() : {}
 {
-  <TILDA> cond()
+  <TILDE> cond()
 | <LPAREN> cond() <RPAREN>
 | exp() compOp() exp()
-}
-
-void advCond() : {}
-{
-  (cond() (<OR> | <AND>) cond()) advCond()
-| {}
 }
 
 void compOp() : {}
@@ -283,6 +256,5 @@ void argList() : {}
 
 void nempArgList() : {}
 {
-  <IDENTIFIER>
-| <IDENTIFIER> <COMMA> nempArgList()
+  <IDENTIFIER> (<COMMA> nempArgList() | {})
 }
