@@ -115,10 +115,9 @@ TOKEN : {
 // Numbers and Identifiers
 TOKEN : {
   <NUM: (<MINUS>)?["1"-"9"](<DIGIT>)* | "0">
-| <IDENTIFIER: <LETTER>(<LETTER>|<DIGIT>|<UNDERSCORE>)*>
+| <IDENTIFIER: <LETTER>(<LETTER>|<DIGIT>|"_")*>
 | <#DIGIT: ["0"-"9"]>
 | <#LETTER: ["a"-"z", "A"-"Z"]>
-| <#UNDERSCORE: "_">
 }
 
 void Prog() : {}
