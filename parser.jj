@@ -9,12 +9,11 @@
 /* I declare that this is my own work, and that I am aware of the consequences
    of plagerism in DCU. */
 
-/****************************** LEXICAL TOKENIZER ******************************/
-
 options {
   JAVA_UNICODE_ESCAPE = true;
   TOKEN_FACTORY = "Token";
   IGNORE_CASE = true;
+  LOOKAHEAD = 1;
 }
 
 PARSER_BEGIN(CCALParser)
@@ -58,6 +57,7 @@ SKIP : {
 | "\n"
 | "\t"
 | "\r"
+| "\f"
 | <"//" (~["\n"])*> // Informal comments
 | "/*" { commentNesting++; } : FORMAL_COMMENT
 }
@@ -234,7 +234,7 @@ void cond() : {}
 void simpleCond() : {}
 {
   <TILDE> cond()
-| <LPAREN> cond() <RPAREN>
+| LOOKAHEAD(2) <LPAREN> cond() <RPAREN> //TODO REMOVE LOOKAHEAD
 | exp() compOp() exp()
 }
 
