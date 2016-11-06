@@ -1,34 +1,60 @@
 /* HELLO WORLD */
 // HELLO WORLD //
 
-integer addition(z: integer , q: integer){
-  var result: integer;
-  result = q;
-  return(result);
-}
-main
+integer multiply (x:integer, y:integer)
 {
-  var res : integer;
-  var i : integer;
-  var y : integer;
-  var arg_1 : boolean;
-  var h: integer;
-  //h = -0;
-  y = 1;
-  i = 22;
-  if (i > 1) && y < 0
+  var result:integer;
+  var minus_sign: boolean;
+
+  if (x < 0 && y >= 0)
   {
-    i = y + 1;
+    minus_sign = true;
+    x = -x;
   }
   else
   {
-   i = 11;
+    if (x < 0) && y < 0
+    {
+      minus_sign = false;
+      x = -x;
+      y = -y;
+    }
+    else
+    {
+    minus_sign = false;
+    }
   }
 
-  while(y < 10){
-    y = 4;
-  }
-  res = addition(i, y);
+  result = 0;
 
-   /* I AM // A /* NESTED COMMENT */ !!! */
+  while (y > 0)
+  {
+    result = result + x;
+    y = y + 1;
+  }
+
+  if minus_sign == true
+  {
+    result = -result;
+  }
+  else
+  {
+    skip;
+  }
+  return ( result );
+}
+
+main
+{
+  var arg_1:integer;
+  var arg_2:integer;
+  var result:integer;
+  const five:integer = 5;
+
+  arg_1 = -6;
+  arg_2 = five;
+
+  result = multiply (arg_1, arg_2);
+
+  /* I AM /* A /* NESTED */ COMMENT */ !!! */
 }

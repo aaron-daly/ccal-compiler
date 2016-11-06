@@ -112,9 +112,9 @@ TOKEN : {
   | <GT_EQUALS: ">=">
 }
 
-// Integers and Identifiers
+// Numbers and Identifiers
 TOKEN : {
-  <NUM: (<DIGIT>)+>
+  <NUM: (<MINUS>)?["1"-"9"](<DIGIT>)* | "0">
 | <IDENTIFIER: <LETTER>(<LETTER>|<DIGIT>|<UNDERSCORE>)*>
 | <#DIGIT: ["0"-"9"]>
 | <#LETTER: ["a"-"z", "A"-"Z"]>
@@ -234,7 +234,7 @@ void cond() : {}
 void simpleCond() : {}
 {
   <TILDE> cond()
-| LOOKAHEAD(2) <LPAREN> cond() <RPAREN> //TODO REMOVE LOOKAHEAD
+| <LPAREN> cond() <RPAREN>
 | exp() compOp() exp()
 }
 
