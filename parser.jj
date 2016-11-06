@@ -112,9 +112,9 @@ TOKEN : {
   | <GT_EQUALS: ">=">
 }
 
-// Numbers and Identifiers
+// Ints and Identifiers
 TOKEN : {
-  <NUM: (<MINUS>)?["1"-"9"](<DIGIT>)* | "0">
+  <INT: (<MINUS>)?["1"-"9"](<DIGIT>)* | "0">
 | <IDENTIFIER: <LETTER>(<LETTER>|<DIGIT>|"_")*>
 | <#DIGIT: ["0"-"9"]>
 | <#LETTER: ["a"-"z", "A"-"Z"]>
@@ -208,7 +208,7 @@ void frag() : {}
   <LPAREN> exp() <RPAREN>
 | <IDENTIFIER> (<LPAREN> argList() <RPAREN> | {})
 | <MINUS> <IDENTIFIER>
-| <NUM>
+| <INT>
 | <TRUE>
 | <FALSE>
 }
