@@ -1,0 +1,266 @@
+/* CA4003 - ASSIGNMENT 1 - LEXICAL AND SYNTAX ANALYSER FOR THE CCAL LANGUAGE */
+
+/*** STUDENT DETAILS ***
+ Aaron Daly
+ 13376916
+ aaron.daly42@mail.dcu.ie
+************************/
+
+/* I declare that this is my own work, and that I am aware of the consequences
+   of plagerism in DCU. */
+
+options {
+  JAVA_UNICODE_ESCAPE = true;
+  TOKEN_FACTORY = "Token";
+  IGNORE_CASE = true;
+  LOOKAHEAD = 1;
+  MULTI = true;
+  VISITOR = true;
+}
+
+PARSER_BEGIN(CCALParser)
+
+  public class CCALParser {
+    public static void main(String [] args) {
+      CCALParser parser;
+      if (args.length == 0) {
+        System.out.println("Reading from standard input...");
+        parser = new CCALParser(System.in);
+      } else if (args.length == 1) {
+        try {
+          parser = new CCALParser(new java.io.FileInputStream(args[0]));
+        } catch (java.io.FileNotFoundException e) {
+          System.out.printf("File '$s' not found.", args[0]);
+          return;
+        }
+      } else {
+        System.out.println("Invalid use of CCALParser. Either use system.in or specify a filename as an arguement.");
+        return;
+      }
+      try {
+
+        SimpleNode root = parser.Prog();
+        root.dump(" ");
+
+      } catch (ParseException e) {
+        System.out.println(e.getMessage());
+        System.out.println("CCALParser: Parsing was unsuccessful.");
+      }
+    }
+  }
+
+PARSER_END(CCALParser)
+
+TOKEN_MGR_DECLS : {
+  static int commentNesting;
+}
+
+// Tokens to skip
+SKIP : {
+" "
+| "\n"
+| "\t"
+| "\r"
+| "\f"
+| <"//" (~["\n"])*> // Informal comments
+| "/*" { commentNesting++; } : FORMAL_COMMENT
+}
+
+// Formal comments
+<FORMAL_COMMENT> SKIP : {
+  "/*" { commentNesting++; }
+| "*/" { commentNesting--;
+         if (commentNesting == 0) {
+           SwitchTo(DEFAULT);
+         }}
+| <~[]>
+}
+
+// Reserved Words
+TOKEN : {
+  <VAR: "var">
+| <CONST: "const">
+| <RETURN: "return">
+| <INTEGER: "integer">
+| <BOOLEAN: "boolean">
+| <VOID: "void">
+| <MAIN: "main">
+| <IF: "if">
+| <ELSE: "else">
+| <WHILE: "while">
+| <SKIP_: "skip">
+| <TRUE: "true">
+| <FALSE: "false">
+}
+
+// Language Tokens
+TOKEN : {
+  <COMMA: ",">
+  | <SEMIC: ";">
+  | <COLON: ":">
+  | <ASSIGN: "=">
+  | <LBRACE: "{">
+  | <RBRACE: "}">
+  | <LPAREN: "(">
+  | <RPAREN: ")">
+  | <PLUS: "+">
+  | <MINUS: "-">
+  | <TILDE: "~">
+  | <OR: "||">
+  | <AND: "&&">
+  | <EQUALS: "==">
+  | <NOT_EQUALS: "!=">
+  | <LESS_THAN: "<">
+  | <LT_EQUALS: "<=">
+  | <GREATER_THAN: ">">
+  | <GT_EQUALS: ">=">
+}
+
+// Ints and Identifiers
+TOKEN : {
+  <INT: (<MINUS>)?["1"-"9"](<DIGIT>)* | "0">
+| <IDENTIFIER: <LETTER>(<LETTER>|<DIGIT>|"_")*>
+| <#DIGIT: ["0"-"9"]>
+| <#LETTER: ["a"-"z", "A"-"Z"]>
+}
+
+SimpleNode Prog() #PROG : {}
+{
+  declList() funcList() main() <EOF> { return jjtThis; }
+}
+
+void declList() : {}
+{
+  (decl())*
+}
+
+void decl() : {}
+{
+  (varDecl()
+  | constDecl())
+}
+
+void varDecl() #VAR_DECL : {}
+{
+  <VAR> identifier() <COLON> type() <SEMIC>
+}
+
+void constDecl() #CONST_DECL : {}
+{
+  <CONST> identifier() <COLON> type() <ASSIGN> exp() <SEMIC>
+}
+
+void funcList() : {}
+{
+  (func())*
+}
+
+void func() : {}
+{
+  type() identifier() <LPAREN> paramList() <RPAREN>
+   <LBRACE> declList() stmBlock() <RETURN> <LPAREN> (exp() | {}) <RPAREN> <SEMIC> <RBRACE>
+}
+
+void type() : {Token t;}
+{
+  t = <INTEGER> { jjtThis.value = t.image; }
+| t = <BOOLEAN> { jjtThis.value = t.image; }
+| t = <VOID> { jjtThis.value = t.image; }
+}
+
+void paramList() : {}
+{
+  param() (<COMMA> param())*
+| {}
+}
+
+void param() : {String name;}
+{
+  name = identifier() <COLON> type()
+}
+
+void main() : {}
+{
+  <MAIN> <LBRACE> declList() stmBlock() <RBRACE>
+  | {}
+}
+
+void stmBlock() : {}
+{
+  stm() stmBlock()
+| {}
+}
+
+void stm() : {}
+{
+  identifier() (<ASSIGN> exp() <SEMIC> | <LPAREN> argList() <RPAREN>)
+| <LBRACE> stmBlock() <RBRACE>
+| <IF> cond() <LBRACE> stmBlock() <RBRACE> <ELSE> <LBRACE> stmBlock() <RBRACE>
+| <WHILE> cond() <LBRACE> stmBlock() <RBRACE>
+| <SKIP_> <SEMIC>
+}
+
+void exp() : {}
+{
+  frag() recurExp()
+}
+
+void frag() : {}
+{
+  <LPAREN> exp() <RPAREN>
+| identifier() (<LPAREN> argList() <RPAREN> | {})
+| <MINUS> identifier()
+| <INT>
+| <TRUE>
+| <FALSE>
+}
+
+void recurExp() : {}
+{
+  (binOp() exp()) recurExp()
+| {}
+}
+
+void binOp() : {Token t;}
+{
+  t = <PLUS> { jjtThis.value = t.image; }
+| t = <MINUS> { jjtThis.value = t.image; }
+}
+
+void cond() : {}
+{
+  simpleCond() recurCond()
+}
+
+void simpleCond() : {}
+{
+  <TILDE> cond()
+| <LPAREN> cond() <RPAREN>
+| exp() compOp() exp()
+}
+
+void recurCond() : {}
+{
+  (<OR> | <AND>) cond() recurCond() | {}
+}
+
+void compOp() : {Token t;}
+{
+  t = <EQUALS> { jjtThis.value = t.image; }
+| t = <NOT_EQUALS> { jjtThis.value = t.image; }
+| t = <LESS_THAN> { jjtThis.value = t.image; }
+| t = <LT_EQUALS> { jjtThis.value = t.image; }
+| t = <GREATER_THAN> { jjtThis.value = t.image; }
+| t = <GT_EQUALS> { jjtThis.value = t.image; }
+}
+
+void argList() : {}
+{
+  identifier() (<COMMA> identifier())*
+| {}
+}
+
+String identifier() : {Token t;}
+{
+  t = <IDENTIFIER> { jjtThis.value = t.image; return t.image; }
+}
