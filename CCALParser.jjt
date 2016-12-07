@@ -241,7 +241,13 @@ void simpleCond() : {}
 
 void recurCond() : {}
 {
-  (<OR> | <AND>) cond() recurCond() | {}
+  andOrOp() cond() recurCond() | {}
+}
+
+void andOrOp() : {Token t;}
+{
+  t = <OR> { jjtThis.value = t.image; }
+| t = <AND> { jjtThis.value = t.image; }
 }
 
 void compOp() : {Token t;}

@@ -772,11 +772,11 @@ void recurCond() : {/*@bgen(jjtree) recurCond */
 {/*@bgen(jjtree) recurCond */
   try {
 /*@egen*/
-  (<OR> | <AND>) cond() recurCond() |/*@bgen(jjtree)*/
-                                      {
-                                        jjtree.closeNodeScope(jjtn000, true);
-                                        jjtc000 = false;
-                                      }
+  andOrOp() cond() recurCond() |/*@bgen(jjtree)*/
+                                 {
+                                   jjtree.closeNodeScope(jjtn000, true);
+                                   jjtc000 = false;
+                                 }
 /*@egen*/ {}/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -792,6 +792,34 @@ void recurCond() : {/*@bgen(jjtree) recurCond */
       throw (ParseException)jjte000;
     }
     throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void andOrOp() : {/*@bgen(jjtree) andOrOp */
+                  ASTandOrOp jjtn000 = new ASTandOrOp(JJTANDOROP);
+                  boolean jjtc000 = true;
+                  jjtree.openNodeScope(jjtn000);
+/*@egen*/Token t;}
+{/*@bgen(jjtree) andOrOp */
+  try {
+/*@egen*/
+  t = <OR>/*@bgen(jjtree)*/
+           {
+             jjtree.closeNodeScope(jjtn000, true);
+             jjtc000 = false;
+           }
+/*@egen*/ { jjtn000.value = t.image; }
+| t = <AND>/*@bgen(jjtree)*/
+            {
+              jjtree.closeNodeScope(jjtn000, true);
+              jjtc000 = false;
+            }
+/*@egen*/ { jjtn000.value = t.image; }/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);

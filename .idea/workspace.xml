@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a88bcea9-e294-47d9-8121-d70fa8c608a0" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/CCALParser.jj" afterPath="$PROJECT_DIR$/CCALParser.jjt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CCALParser.jj" afterPath="$PROJECT_DIR$/CCALParser.jj" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CCALParser.jjt" afterPath="$PROJECT_DIR$/CCALParser.jjt" />
     </list>
     <ignored path="ccal-compiler.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -25,8 +27,8 @@
       <file leaf-file-name="CCALParser.jjt" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/CCALParser.jjt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="579">
-              <caret line="262" column="29" lean-forward="false" selection-start-line="262" selection-start-column="29" selection-end-line="262" selection-end-column="29" />
+            <state relative-caret-position="564">
+              <caret line="249" column="40" lean-forward="false" selection-start-line="249" selection-start-column="40" selection-end-line="249" selection-end-column="40" />
               <folding />
             </state>
           </provider>
@@ -45,7 +47,7 @@
       <file leaf-file-name="CCALParser.jj" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CCALParser.jj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2010">
+            <state relative-caret-position="-2400">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
@@ -506,7 +508,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/CCALParser.jj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2010">
+        <state relative-caret-position="-2400">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
@@ -514,8 +516,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/CCALParser.jjt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="579">
-          <caret line="262" column="29" lean-forward="false" selection-start-line="262" selection-start-column="29" selection-end-line="262" selection-end-column="29" />
+        <state relative-caret-position="564">
+          <caret line="249" column="40" lean-forward="false" selection-start-line="249" selection-start-column="40" selection-end-line="249" selection-end-column="40" />
           <folding />
         </state>
       </provider>
