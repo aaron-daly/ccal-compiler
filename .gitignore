@@ -2,3 +2,4 @@
 *.class
 !TypeCheckVisitor.java
 !PrintVisitor.java
+.idea
