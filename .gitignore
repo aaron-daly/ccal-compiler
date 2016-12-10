@@ -1,2 +1,4 @@
 *.java
 *.class
+!TypeCheckVisitor.java
+!PrintVisitor.java

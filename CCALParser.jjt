@@ -20,34 +20,52 @@ options {
 
 PARSER_BEGIN(CCALParser)
 
-  public class CCALParser {
-    public static void main(String [] args) {
-      CCALParser parser;
-      if (args.length == 0) {
-        System.out.println("Reading from standard input...");
-        parser = new CCALParser(System.in);
-      } else if (args.length == 1) {
-        try {
-          parser = new CCALParser(new java.io.FileInputStream(args[0]));
-        } catch (java.io.FileNotFoundException e) {
-          System.out.printf("File '$s' not found.", args[0]);
-          return;
-        }
-      } else {
-        System.out.println("Invalid use of CCALParser. Either use system.in or specify a filename as an arguement.");
+import java.io.*;
+import java.util.*;
+
+public class CCALParser {
+  public static Hashtable ST = new Hashtable();
+  public static void main(String [] args) {
+    CCALParser parser;
+    if (args.length == 0) {
+      System.out.println("Reading from standard input...");
+      parser = new CCALParser(System.in);
+    } else if (args.length == 1) {
+      try {
+        parser = new CCALParser(new java.io.FileInputStream(args[0]));
+      } catch (java.io.FileNotFoundException e) {
+        System.out.printf("File '$s' not found.", args[0]);
         return;
       }
-      try {
+    } else {
+      System.out.println("Invalid use of CCALParser. Either use system.in or specify a filename as an arguement.");
+      return;
+    }
+    try {
 
-        SimpleNode root = parser.Prog();
-        root.dump(" ");
+      SimpleNode root = parser.Prog();
 
-      } catch (ParseException e) {
-        System.out.println(e.getMessage());
-        System.out.println("CCALParser: Parsing was unsuccessful.");
-      }
+      System.out.println("\n**************** TREE DUMP ****************\n");
+
+      root.dump(" ");
+
+      System.out.println("\n**************** PRINT VISITOR ****************\n");
+
+      PrintVisitor pv = new PrintVisitor();
+      root.jjtAccept(pv, null);
+
+      System.out.println("\n**************** SYMBOL TABLE ****************\n");
+
+
+      SVisitor sv = new SVisitor();
+      root.jjtAccept(sv, ST);
+
+    } catch (ParseException e) {
+      System.out.println(e.getMessage());
+      System.out.println("CCALParser: Parsing was unsuccessful.");
     }
   }
+}
 
 PARSER_END(CCALParser)
 
@@ -129,36 +147,40 @@ SimpleNode Prog() #PROG : {}
   declList() funcList() main() <EOF> { return jjtThis; }
 }
 
-void declList() : {}
+void declList() #void : {}
 {
   (decl())*
 }
 
-void decl() : {}
+void decl() #void : {}
 {
   (varDecl()
   | constDecl())
 }
 
-void varDecl() #VAR_DECL : {}
+void varDecl() : {}
 {
   <VAR> identifier() <COLON> type() <SEMIC>
 }
 
-void constDecl() #CONST_DECL : {}
+void constDecl() : {}
 {
   <CONST> identifier() <COLON> type() <ASSIGN> exp() <SEMIC>
 }
 
-void funcList() : {}
+void funcList() #void : {}
 {
-  (func())*
+  ( func() )*
 }
 
 void func() : {}
 {
-  type() identifier() <LPAREN> paramList() <RPAREN>
-   <LBRACE> declList() stmBlock() <RETURN> <LPAREN> (exp() | {}) <RPAREN> <SEMIC> <RBRACE>
+  type() identifier() <LPAREN> paramList() <RPAREN> funcBlock()
+}
+
+void funcBlock() : {}
+{
+  <LBRACE> declList() stmBlock() (<RETURN> <LPAREN> (exp() | {}) <RPAREN> #funcReturn(1)) <SEMIC> <RBRACE>
 }
 
 void type() : {Token t;}
@@ -170,7 +192,7 @@ void type() : {Token t;}
 
 void paramList() : {}
 {
-  param() (<COMMA> param())*
+  (param() (<COMMA> param())*)
 | {}
 }
 
@@ -185,39 +207,85 @@ void main() : {}
   | {}
 }
 
-void stmBlock() : {}
+void stmBlock() #void : {}
 {
   stm() stmBlock()
 | {}
 }
 
-void stm() : {}
+void stm() #void : {}
 {
-  identifier() (<ASSIGN> exp() <SEMIC> | <LPAREN> argList() <RPAREN>)
+  identifier() ( assign() #assign(2) | funcCall() #funcCall(2) )
 | <LBRACE> stmBlock() <RBRACE>
-| <IF> cond() <LBRACE> stmBlock() <RBRACE> <ELSE> <LBRACE> stmBlock() <RBRACE>
-| <WHILE> cond() <LBRACE> stmBlock() <RBRACE>
-| <SKIP_> <SEMIC>
+| ifElseBlock()
+| whileBlock()
+| stmSkip()
 }
 
-void exp() : {}
+void assign() #void : {}
+{
+  <ASSIGN> exp() <SEMIC>
+}
+
+void funcCall() #void : {}
+{
+  <LPAREN> argList() <RPAREN> <SEMIC>
+}
+
+void argList() : {}
+{
+  identifier() (<COMMA> identifier())*
+| {}
+}
+
+void stmSkip() : {}
+{
+  <SKIP_> <SEMIC>
+}
+
+void ifElseBlock() #void : {}
+{
+   ifBlock() elseBlock()
+}
+
+void ifBlock() : {}
+{
+  <IF> cond() <LBRACE> stmBlock() <RBRACE>
+}
+
+void elseBlock() : {}
+{
+  <ELSE> <LBRACE> stmBlock() <RBRACE>
+}
+
+void whileBlock() : {}
+{
+  <WHILE> cond() <LBRACE> stmBlock() <RBRACE>
+}
+
+void exp() #void : {}
 {
   frag() recurExp()
 }
 
-void frag() : {}
+void frag() #void : {}
 {
-  <LPAREN> exp() <RPAREN>
+  <LPAREN> exp() <RPAREN> #parenExp(1)
 | identifier() (<LPAREN> argList() <RPAREN> | {})
-| <MINUS> identifier()
-| <INT>
-| <TRUE>
-| <FALSE>
+| <MINUS> identifier() #negIdentifier(1)
+| num()
+| bool()
 }
 
-void recurExp() : {}
+void bool() : {Token t;}
 {
-  (binOp() exp()) recurExp()
+  t = <TRUE> { jjtThis.value = t.image; }
+| t = <FALSE> { jjtThis.value = t.image; }
+}
+
+void recurExp() #void : {}
+{
+  (binOp() exp() #binOpExp(3)) recurExp()
 | {}
 }
 
@@ -227,21 +295,21 @@ void binOp() : {Token t;}
 | t = <MINUS> { jjtThis.value = t.image; }
 }
 
-void cond() : {}
+void cond() #void : {}
 {
   simpleCond() recurCond()
 }
 
-void simpleCond() : {}
+void simpleCond() #void : {}
 {
-  <TILDE> cond()
-| <LPAREN> cond() <RPAREN>
-| exp() compOp() exp()
+  <LPAREN> cond() <RPAREN> #parenCond(>1) // TODO fix parenCond()
+| <TILDE> cond() #notCond(1)
+| exp() compOp() exp() #operatorCond(3)
 }
 
-void recurCond() : {}
+void recurCond() #void : {}
 {
-  andOrOp() cond() recurCond() | {}
+  (andOrOp() cond() #andOrCond(3)) recurCond() | {}
 }
 
 void andOrOp() : {Token t;}
@@ -260,10 +328,9 @@ void compOp() : {Token t;}
 | t = <GT_EQUALS> { jjtThis.value = t.image; }
 }
 
-void argList() : {}
+void num() : {Token t;}
 {
-  identifier() (<COMMA> identifier())*
-| {}
+  t = <INT> { jjtThis.value = t.image; }
 }
 
 String identifier() : {Token t;}
