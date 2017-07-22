@@ -1,14 +1,3 @@
-/* CA4003 - ASSIGNMENT 1 - LEXICAL AND SYNTAX ANALYSER FOR THE CCAL LANGUAGE */
-
-/*** STUDENT DETAILS ***
- Aaron Daly
- 13376916
- aaron.daly42@mail.dcu.ie
-************************/
-
-/* I declare that this is my own work, and that I am aware of the consequences
-   of plagerism in DCU. */
-
 options {
   JAVA_UNICODE_ESCAPE = true;
   TOKEN_FACTORY = "Token";
